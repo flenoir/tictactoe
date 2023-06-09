@@ -4,23 +4,35 @@ import "fmt"
 
 // creation de la grille de jeu
 var Grid = [9]string{"1", "2", "3", "4", "5", "6", "7", "8", "9"}
-var firstUserInput string
-var secondUserInput string
+
+// variable de l'entrée utilisateur
+var UserInput string
+
+// variable de tour de jeu
 var turn uint = 0
 
+// definition des symboles associés aux joueurs
+var playerSigns = []string{"X", "O"}
+
+// fonction principale
 func main() {
 	fmt.Printf("Tic Tac Toe Game\n")
 	printGrid()
-	var firstUserSelection = getFirstUserInput()
-	modifGrid(firstUserSelection)
-	printGrid()
-	turn++
-	fmt.Printf("%d\n", uint64(turn))
-	var secondUserSelection = getSecondUserInput()
-	modifGridSecondUser(secondUserSelection)
-	printGrid()
-	turn++
-	fmt.Printf("%d\n", uint64(turn))
+	for checkWin() {
+		var userSelection string = getUserInput()
+		// verification si l'entrée valide
+		if checkIfContainsUserInput(userSelection) {
+			modifGrid(userSelection)
+			printGrid()
+			turn++ //incrémentation du tour
+		} else {
+			fmt.Printf("Your selection is invalid, please retry.\n")
+			var userSelection string = getUserInput()
+			modifGrid(userSelection)
+			printGrid()
+			turn++
+		}
+	}
 }
 
 // affichage de la grille de jeu
@@ -30,52 +42,63 @@ func printGrid() {
 	fmt.Printf("%v  %v  %v\n", Grid[6], Grid[7], Grid[8])
 }
 
-// demande de la selection du premier utilisateur
-func getFirstUserInput() string {
+// demande de la selection  de l'utilisateur
+func getUserInput() string {
 	if turn%2 == 0 {
-		fmt.Printf("Odd\n")
+		fmt.Println("Player 1, your turn. Choose a place on the grid using it's number : ")
+		fmt.Scan(&UserInput)
+		fmt.Printf("You selected %s\n", UserInput)
+		return UserInput
 	} else {
-		fmt.Printf("Even\n")
+		fmt.Println("Player 2, your turn. Choose a place on the grid using it's number : ")
+		fmt.Scan(&UserInput)
+		fmt.Printf("You selected %s\n", UserInput)
+		return UserInput
 	}
-	fmt.Println("User 1, your turn. Choose a place on the grid using it's number : ")
-	fmt.Scan(&firstUserInput)
-	fmt.Printf("You selected %s\n", firstUserInput)
-	return firstUserInput
 }
 
-// modification avec X de la grille an fonction de l'input user 1
-func modifGrid(firstUserInput string) {
+// modification avec X ou O de la grille en fonction de l'input user
+func modifGrid(UserInput string) {
 	for index, gridCase := range Grid {
-		if gridCase == firstUserInput {
+		if gridCase == UserInput && turn%2 == 0 {
 			Grid[index] = "X"
-		}
-
-	}
-}
-
-// demande de la selection du second utilisateur
-func getSecondUserInput() string {
-	if turn%2 == 0 {
-		fmt.Printf("Odd\n")
-	} else {
-		fmt.Printf("Even\n")
-	}
-	fmt.Println("User , your turn. Choose a place on the grid using it's number : ")
-	fmt.Scan(&secondUserInput)
-	fmt.Printf("You selected n°%s\n", secondUserInput)
-	return secondUserInput
-}
-
-// modification avec O de la grille an fonction de l'input user 1
-func modifGridSecondUser(secondUserInput string) {
-	for index, gridCase := range Grid {
-		if gridCase == secondUserInput {
+		} else if gridCase == UserInput && turn%2 != 0 {
 			Grid[index] = "O"
 		}
 
 	}
 }
 
-// verification si gagné
-// verification si entrée valide
-// ajout d'une notion de tour avec une alternance de jeu si la valeur est paire ou impaire
+// verification si un joueur a gagné
+func checkWin() bool {
+	for _, value := range playerSigns {
+		//verifie les lignes puis les colonnes et les diagonales
+		if Grid[0] == value && Grid[1] == value && Grid[2] == value ||
+			Grid[3] == value && Grid[4] == value && Grid[5] == value ||
+			Grid[6] == value && Grid[7] == value && Grid[8] == value {
+			fmt.Printf("C'est gagné !\n")
+			return false
+		} else if Grid[0] == value && Grid[3] == value && Grid[6] == value ||
+			Grid[1] == value && Grid[4] == value && Grid[7] == value ||
+			Grid[2] == value && Grid[5] == value && Grid[8] == value {
+			fmt.Printf("C'est gagné !\n")
+			return false
+		} else if Grid[0] == value && Grid[4] == value && Grid[8] == value ||
+			Grid[2] == value && Grid[4] == value && Grid[6] == value {
+			fmt.Printf("C'est gagné !\n")
+			return false
+		}
+	}
+	return true
+}
+
+// fonction de verification de la présence de l'entrée utilisateur dans la valeurs possibles de la grille
+func checkIfContainsUserInput(userChoice string) bool {
+	for _, v := range Grid {
+		fmt.Printf("The value is %v\n", v)
+		if userChoice == v {
+			return true
+		}
+	}
+	return false
+}
